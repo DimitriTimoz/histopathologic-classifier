@@ -1,0 +1,4 @@
+mask_output/
+masks/
+.DS_Store
+__pycache__/
