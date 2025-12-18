@@ -32,3 +32,4 @@ class CNN(nn.Module):
                 correct += (predicted == y).sum().item()
         accuracy = correct / total if total > 0 else 0.0
         return accuracy
+    
