@@ -37,7 +37,7 @@ def list_image_files(data_folder: str, exts: Sequence[str] = (".png", ".jpg", ".
 
 
 def get_224_crop_boxes(w: int, h: int) -> list[tuple[int, int, int, int]]:
-    size = 224*4
+    size = 224*2
 
     if w < size or h < size:
         return []
@@ -96,7 +96,6 @@ class FilenameLabelImageDataset(Dataset):
             for box in get_224_crop_boxes(w, h):
                 samples.append((path, box))
                 labels_str.append(lab)
-
         self.samples = samples
         self.labels_str = labels_str
         self.targets = [self.class_to_idx[c] for c in self.labels_str]
