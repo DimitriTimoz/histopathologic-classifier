@@ -129,3 +129,30 @@ class FilenameLabelImageDataset(Dataset):
 
     def class_counts(self) -> Counter:
         return Counter(self.labels_str)
+    
+    def save_dataset(self, output_folder: str) -> None:
+        output_path = Path(output_folder)
+        output_path.mkdir(parents=True, exist_ok=True)
+        for i in range(len(self)):
+            img, label = self[i]
+            class_name = self.idx_to_class[label]
+            class_folder = output_path / class_name
+            class_folder.mkdir(parents=True, exist_ok=True)
+            img_filename = f"img_{i:06d}.png"
+            img.save(class_folder / img_filename)
+            
+    def load_dataset(self, input_folder: str) -> None:
+        files = list_image_files(input_folder)
+        labels = [p.parent.name for p in files]
+        self.files = files
+        self.labels_str_files = labels
+
+        classes = sorted(set(self.labels_str_files))
+        self.class_to_idx = {c: i for i, c in enumerate(classes)}
+        self.idx_to_class = {i: c for c, i in self.class_to_idx.items()}
+
+        self.samples = [(p, (0, 0, 224, 224)) for p in self.files]
+        self.labels_str = self.labels_str_files
+        self.targets = [self.class_to_idx[c] for c in self.labels_str]
+        
+        
