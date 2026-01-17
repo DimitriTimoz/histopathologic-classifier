@@ -4,3 +4,6 @@ masks/
 __pycache__/
 venv/
 *.pth
+*.png
+*.out
+*.txt

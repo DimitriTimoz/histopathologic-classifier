@@ -9,6 +9,8 @@ class CNN(nn.Module):
         super(CNN, self).__init__()
         self.model = models.resnet18(pretrained=True)
         self.model.fc = nn.Linear(self.model.fc.in_features, num_classes)
+        self.feature_extractor = nn.Sequential(*list(self.model.children())[:-2])
+        self.fc = self.model.fc
 
     def forward(self, x):
         return self.model(x)
@@ -32,6 +34,17 @@ class CNN(nn.Module):
                 correct += (predicted == y).sum().item()
         accuracy = correct / total if total > 0 else 0.0
         return accuracy
+    
+    def get_attention_maps(self, x):
+        self.eval()
+        with torch.no_grad():
+            features = self.feature_extractor(x)
+            fc_weights = self.fc.weight.unsqueeze(-1).unsqueeze(-1)
+            
+            cams = F.conv2d(features, fc_weights)
+            cams = F.relu(cams)
+            
+        return cams
 
 class Attention_Module(nn.Module):
     def __init__(self):
@@ -61,7 +74,7 @@ class Attention_Module(nn.Module):
 
 
 class CNN_PDA(nn.Module): 
-    def __init__(self, num_classes: int, gamma: float = 0.5):
+    def __init__(self, num_classes: int, gamma: float = 0.15):
         super(CNN_PDA, self).__init__()
 
         self.model = models.resnet18(pretrained=True)
